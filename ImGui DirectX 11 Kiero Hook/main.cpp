@@ -20,8 +20,8 @@ float fov = 60.0;
 
 //crosshair
 ImColor Crosshair = ImColor(255.0f / 255, 255.0f / 255, 255.0f / 255);
-float size = 10.0f;      // Äëèíà ëèíèé ïðèöåëà
-float thickness = 2.0f;   // Òîëùèíà ëèíèé
+float size = 10.0f;      // Ã„Ã«Ã¨Ã­Ã  Ã«Ã¨Ã­Ã¨Ã© Ã¯Ã°Ã¨Ã¶Ã¥Ã«Ã 
+float thickness = 2.0f;   // Ã’Ã®Ã«Ã¹Ã¨Ã­Ã  Ã«Ã¨Ã­Ã¨Ã©
 bool isdraw;
 
 //objects
@@ -185,7 +185,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("FPS Hack", ImVec2(125, 40))) {
+	if (ImGui::Button("?", ImVec2(125, 40))) {
 		TabId = 3;
 	}
 
@@ -236,16 +236,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 
 	if (TabId == 3) {
-		ImGui::Text("FPS HACK");
-		ImGui::BeginChild("Modular FPS", ImVec2(255, 105), true);
-		if (ImGui::Button("Find")) {
-			fps = Unity::GameObject::Find("FirstPersonController");
-		}
-		
-		ImGui::EndChild();
-
-		ImGui::BeginChild("Modular FPS", ImVec2(255, 105), true);
-		ImGui::EndChild();
+		// ÐÑƒÑƒ...
 	}
 	ImGui::End();
 
@@ -258,7 +249,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 			const ImVec2 screenSize = ImGui::GetIO().DisplaySize;
 			const ImVec2 screenCenter(screenSize.x / 2.0f, screenSize.y);
 
-			// Ðèñóåì ëèíèþ
+			// ÃÃ¨Ã±Ã³Ã¥Ã¬ Ã«Ã¨Ã­Ã¨Ã¾
 			if (WorldToScreen(playerPos, pos)) {
 				ImGui::GetBackgroundDrawList()->AddLine(screenCenter, ImVec2(pos.x, pos.y), ImColor(Rainbow.x, Rainbow.y, Rainbow.z), 1.5f);
 			}
@@ -281,7 +272,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 			Crosshair, thickness
 		);
 
-		// Ðèñóåì âåðòèêàëüíóþ ëèíèþ
+		// ÃÃ¨Ã±Ã³Ã¥Ã¬ Ã¢Ã¥Ã°Ã²Ã¨ÃªÃ Ã«Ã¼Ã­Ã³Ã¾ Ã«Ã¨Ã­Ã¨Ã¾
 		ImGui::GetBackgroundDrawList()->AddLine(
 			ImVec2(screenPosition.x, screenPosition.y - size),
 			ImVec2(screenPosition.x, screenPosition.y + size),
