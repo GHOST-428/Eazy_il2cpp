@@ -20,8 +20,8 @@ float fov = 60.0;
 
 //crosshair
 ImColor Crosshair = ImColor(255.0f / 255, 255.0f / 255, 255.0f / 255);
-float size = 10.0f;      // Äëèíà ëèíèé ïðèöåëà
-float thickness = 2.0f;   // Òîëùèíà ëèíèé
+float size = 10.0f;      // Длина линий прицела
+float thickness = 2.0f;   // Толщина линий
 bool isdraw;
 
 //objects
@@ -170,74 +170,24 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 	auto Rainbow = ImVec4(isRed, isGreen, isBlue, 1.0f);
 
-	ImGui::Begin("NeoExploit | Unity Il2cpp Hack", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollWithMouse);
-	if (ImGui::Button("Visual", ImVec2(125, 40))) {
-		TabId = 1;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Object Manager", ImVec2(125, 40))) {
-		auto list = Unity::Object::FindObjectsOfType<Unity::CComponent>("UnityEngine.Transform");
-		for (int i = 0; i < list->m_uMaxLength; i++) {
-			listGame.push_back(list->operator[](i)->GetGameObject());
-		}
+	ImGui::Text("ESP");
+	ImGui::BeginChild("ESP", ImVec2(255, 35), true, ImGuiWindowFlags_NoScrollbar);
+	ImGui::Checkbox("Line", &esp_line);
+	ImGui::EndChild();
 
-		TabId = 2;
-	}
+	ImGui::Text("FOV");
+	ImGui::BeginChild("FOV", ImVec2(255, 60), true, ImGuiWindowFlags_NoScrollbar);
+	ImGui::SliderFloat("", &fov, 30, 180);
+	ImGui::Checkbox("Apply", &isfov);
+	ImGui::EndChild();
 
-	ImGui::SameLine();
-	if (ImGui::Button("?", ImVec2(125, 40))) {
-		TabId = 3;
-	}
-
-	if (TabId == 1) {
-		ImGui::Text("ESP");
-		ImGui::BeginChild("ESP", ImVec2(255, 35), true, ImGuiWindowFlags_NoScrollbar);
-		ImGui::Checkbox("Line", &esp_line);
-		ImGui::EndChild();
-
-		ImGui::Text("FOV");
-		ImGui::BeginChild("FOV", ImVec2(255, 60), true, ImGuiWindowFlags_NoScrollbar);
-		ImGui::SliderFloat("", &fov, 30, 180);
-		ImGui::Checkbox("Apply", &isfov);
-		ImGui::EndChild();
-
-		ImGui::Text("CROSSHAIR");
-		ImGui::BeginChild("CROSSHAIR", ImVec2(255, 105), true, ImGuiWindowFlags_NoScrollbar);
-		ImGui::ColorEdit3("##CrosshairColor", (float*)&Crosshair);
-		ImGui::SliderFloat("Size", &size, 1, 30);
-		ImGui::SliderFloat("Thickness", &thickness, 1, 30);
-		ImGui::Checkbox("Draw", &isdraw);
-		ImGui::EndChild();
-	}
-	if (TabId == 2) {
-		ImGui::Text("OBJECTS");
-		ImGui::BeginChild("OBJECTS", ImVec2(255, 105), true);
-
-		for (int i = 0; i < listGame.size(); i++) {
-			if (ImGui::Button(listGame[i]->GetName()->ToString().c_str(), ImVec2(245, 30))) {
-				Selected = listGame[i];
-
-				auto OwnPos = Selected->GetTransform()->GetPosition();
-
-				posX = OwnPos.x;
-				posY = OwnPos.y;
-				posZ = OwnPos.z;
-			}
-		}
-		ImGui::EndChild();
-
-		ImGui::InputFloat("X", &posX);
-		ImGui::InputFloat("Y", &posY);
-		ImGui::InputFloat("Z", &posZ);
-
-		if (ImGui::Button("Apply", ImVec2(250, 40))) {
-			Selected->GetTransform()->SetPosition(Unity::Vector3(posX, posY, posZ));
-		}
-	}
-
-	if (TabId == 3) {
-		// Нуу...
-	}
+	ImGui::Text("CROSSHAIR");
+	ImGui::BeginChild("CROSSHAIR", ImVec2(255, 105), true, ImGuiWindowFlags_NoScrollbar);
+	ImGui::ColorEdit3("##CrosshairColor", (float*)&Crosshair);
+	ImGui::SliderFloat("Size", &size, 1, 30);
+	ImGui::SliderFloat("Thickness", &thickness, 1, 30);
+	ImGui::Checkbox("Draw", &isdraw);
+	ImGui::EndChild();
 	ImGui::End();
 
 	if (esp_line) {
@@ -249,7 +199,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 			const ImVec2 screenSize = ImGui::GetIO().DisplaySize;
 			const ImVec2 screenCenter(screenSize.x / 2.0f, screenSize.y);
 
-			// Ðèñóåì ëèíèþ
+			// Рисуем линию
 			if (WorldToScreen(playerPos, pos)) {
 				ImGui::GetBackgroundDrawList()->AddLine(screenCenter, ImVec2(pos.x, pos.y), ImColor(Rainbow.x, Rainbow.y, Rainbow.z), 1.5f);
 			}
@@ -272,7 +222,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 			Crosshair, thickness
 		);
 
-		// Ðèñóåì âåðòèêàëüíóþ ëèíèþ
+		// Рисуем вертикальную линию
 		ImGui::GetBackgroundDrawList()->AddLine(
 			ImVec2(screenPosition.x, screenPosition.y - size),
 			ImVec2(screenPosition.x, screenPosition.y + size),
