@@ -1,5 +1,6 @@
 #include "includes.h"
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+DWORD dwFlag = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollWithMouse;
 
 Present oPresent;
 HWND window = NULL;
@@ -9,6 +10,7 @@ ID3D11DeviceContext* pContext = NULL;
 ID3D11RenderTargetView* mainRenderTargetView;
 int TabId = 1;
 bool menu;
+static bool open = true;
 
 //esp
 bool esp_line;
@@ -25,11 +27,7 @@ float thickness = 2.0f;   // Толщина линий
 bool isdraw;
 
 //objects
-std::vector<Unity::CGameObject*> listGame(NULL);
-Unity::CGameObject* Selected;
-float posX;
-float posY;
-float posZ;
+bool anti_gravity;
 
 //fps
 Unity::CGameObject* fps;
@@ -82,14 +80,14 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 {
 	if (!init)
 	{
-		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)& pDevice)))
+		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDevice)))
 		{
 			pDevice->GetImmediateContext(&pContext);
 			DXGI_SWAP_CHAIN_DESC sd;
 			pSwapChain->GetDesc(&sd);
 			window = sd.OutputWindow;
 			ID3D11Texture2D* pBackBuffer;
-			pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)& pBackBuffer);
+			pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 			pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
 			pBackBuffer->Release();
 			oWndProc = (WNDPROC)SetWindowLongPtr(window, GWLP_WNDPROC, (LONG_PTR)WndProc);
@@ -170,6 +168,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 	auto Rainbow = ImVec4(isRed, isGreen, isBlue, 1.0f);
 
+	ImGui::Begin("Unity Killer | YT: @TheNemor03", &open, dwFlag);
 	ImGui::Text("ESP");
 	ImGui::BeginChild("ESP", ImVec2(255, 35), true, ImGuiWindowFlags_NoScrollbar);
 	ImGui::Checkbox("Line", &esp_line);
@@ -184,10 +183,11 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	ImGui::Text("CROSSHAIR");
 	ImGui::BeginChild("CROSSHAIR", ImVec2(255, 105), true, ImGuiWindowFlags_NoScrollbar);
 	ImGui::ColorEdit3("##CrosshairColor", (float*)&Crosshair);
-	ImGui::SliderFloat("Size", &size, 1, 30);
-	ImGui::SliderFloat("Thickness", &thickness, 1, 30);
+	ImGui::SliderFloat("Size", &size, 1, 250);
+	ImGui::SliderFloat("Thickness", &thickness, 1, 50);
 	ImGui::Checkbox("Draw", &isdraw);
 	ImGui::EndChild();
+
 	ImGui::End();
 
 	if (esp_line) {
@@ -244,7 +244,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 	{
 		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
 		{
-			kiero::bind(8, (void**)& oPresent, hkPresent);
+			kiero::bind(8, (void**)&oPresent, hkPresent);
 			init_hook = true;
 		}
 	} while (!init_hook);
@@ -258,6 +258,8 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hMod);
 		IL2CPP::Initialize();
+		AllocConsole();
+		SetConsoleTitle("Unity Killer");
 		CreateThread(nullptr, 0, MainThread, hMod, 0, nullptr);
 		break;
 	case DLL_PROCESS_DETACH:
