@@ -188,6 +188,30 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	ImGui::Checkbox("Draw", &isdraw);
 	ImGui::EndChild();
 
+	ImGui::Text("RIGIDBODY");
+	ImGui::BeginChild("RIGIDBODY", ImVec2(255, 60), true, ImGuiWindowFlags_NoScrollbar);
+	ImGui::Checkbox("NoGravity", &anti_gravity);
+	if (ImGui::Button("Apply")) {
+		auto list = Unity::Object::FindObjectsOfType<Unity::CComponent>("UnityEngine.Rigidbody");
+
+		if (list) {
+			printf("Found Rigidbody!\n");
+
+			if (anti_gravity) {
+				for (int i = 0; i < list->m_uMaxLength; i++) {
+					list->operator[](i)->SetMemberValue<bool>("useGravity", false);
+				}
+			}
+			else {
+				for (int i = 0; i < list->m_uMaxLength; i++) {
+					list->operator[](i)->SetMemberValue<bool>("useGravity", true);
+				}
+			}
+			
+		}
+	}
+	ImGui::EndChild();
+
 	ImGui::End();
 
 	if (esp_line) {
@@ -259,7 +283,10 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 		DisableThreadLibraryCalls(hMod);
 		IL2CPP::Initialize();
 		AllocConsole();
-		SetConsoleTitle("Unity Killer");
+		AttachConsole(GetCurrentProcessId());
+		SetConsoleTitle("Unity Killer by @Nemor03");
+		FILE* f;
+		freopen_s(&f, "CONOUT$", "w", stdout);
 		CreateThread(nullptr, 0, MainThread, hMod, 0, nullptr);
 		break;
 	case DLL_PROCESS_DETACH:
